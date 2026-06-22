@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akili Za Kesho | Core Deployment Portal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #06070b;
+            --panel-bg: rgba(10, 12, 22, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.05);
+            --cyan: #00f0ff;
+            --neon-green: #00ff87;
+            --purple: #7000ff;
+            --text-muted: #626984;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- LAYER 1: CINEMATIC TYPEWRITER OVERLAY --- */
+        #intro-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .typewriter-wrapper {
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .typewriter-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.5;
+            letter-spacing: 1px;
+            color: #ffffff;
+            display: inline;
+        }
+
+        /* Blinking terminal cursor design */
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            height: 24px;
+            background-color: var(--cyan);
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink 0.8s step-end infinite;
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        @keyframes blink {
+            50% { background-color: transparent; }
+        }
+
+        /* --- LAYER 2: DASHBOARD INFRASTRUCTURE --- */
+        #dashboard-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.96);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none; /* Block interaction until visible */
+            padding: 20px;
+        }
+
+        /* Ambient Glowing Background Blobs */
+        .ambient-glow-1 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            top: -10%;
+            left: -10%;
+            background: radial-gradient(circle, rgba(112, 0, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            bottom: -10%;
+            right: -10%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Dashboard Hub Container */
+        .dashboard-hub {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1000px;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 50px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 50px;
+        }
+
+        @media (max-width: 850px) {
+            .dashboard-hub {
+                grid-template-columns: 1fr;
+                padding: 30px;
+                gap: 30px;
+            }
+            .typewriter-text { font-size: 1.3rem; }
+        }
+
+        /* Content Formatting Elements */
+        .hero-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header-group { margin-bottom: 30px; }
+
+        .logo-box {
+            max-width: 160px;
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.3));
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 135, 0.06);
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            padding: 6px 14px;
+            border-radius: 100px;
+            color: var(--neon-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #ffffff 40%, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .matrix-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .matrix-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(0, 240, 255, 0.2);
+        }
+
+        .matrix-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .matrix-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* Terminal Display Console */
+        .terminal-panel {
+            background: #020306;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-dots { display: flex; gap: 6px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #262930; }
+        .dot.red { background: #ff5f56; }
+        .terminal-title { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
+
+        .terminal-screen {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #cbd5e0;
+            line-height: 1.8;
+            height: 220px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .line-active { color: var(--cyan); }
+        .line-success { color: var(--neon-green); }
+        .line-muted { color: var(--text-muted); }
+
+        .action-trigger {
+            background: #ffffff;
+            color: #06070b;
+            border: none;
+            padding: 16px 30px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .action-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(255, 255, 255, 0.15);
+            background: var(--neon-green);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-layer">
+        <div class="typewriter-wrapper">
+            <span id="target-typewriter" class="typewriter-text"></span>
+            <div class="cursor"></div>
+        </div>
+    </div>
+
+    <div id="dashboard-container">
+        <div class="ambient-glow-1"></div>
+        <div class="ambient-glow-2"></div>
+
+        <div class="dashboard-hub">
+            <div class="hero-panel">
+                <div class="header-group">
+                    <img src="Descriptive Header logo.jpg" alt="Akili Za Kesho" class="logo-box" onerror="this.style.display='none'">
+                    <div>
+                        <div class="status-badge">
+                            <div class="status-dot"></div>
+                            Pipeline Node: Active
+                        </div>
+                    </div>
+                    <h1>Welcome to<br><span>Week 2 Training</span></h1>
+                    <p class="subtitle">Moving source code from isolated localhost sandboxes to automated, edge-accelerated public cloud deployments.</p>
+                </div>
+
+                <div class="matrix-grid">
+                    <div class="matrix-item">
+                        <div class="matrix-label">Core Track</div>
+                        <div class="matrix-value">CI/CD & Cloud Architecture</div>
+                    </div>
+                    <div class="matrix-item">
+                        <div class="matrix-label">Instructors</div>
+                        <div class="matrix-value" style="font-size: 0.95rem; font-weight: 700;">Ashelycole & Martha</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-panel">
+                <div>
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <div class="dot red"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <div class="terminal-title">orchestrator.sh</div>
+                    </div>
+                    <div class="terminal-screen" id="console-output">
+                        <p class="line-muted">// Standing by to connect production engine...</p>
+                        <p class="line-active">> Click launch button below to execute production build sync.</p>
+                    </div>
+                </div>
+                <button class="action-trigger" id="master-btn" onclick="triggerOrchestration()">
+                    Execute Production Sync <span>→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. TYPEWRITER LAYER CONTROLLER ---
+        const messageString = "WELCOME TO AKILI ZA KESHO INTERNSHIP TRAINING...";
+        const textTarget = document.getElementById('target-typewriter');
+        let index = 0;
+
+        function playTypewriter() {
+            if (index < messageString.length) {
+                textTarget.textContent += messageString.charAt(index);
+                index++;
+                // Balanced variable speed to simulate real keystrokes
+                setTimeout(playTypewriter, Math.floor(Math.random() * 50) + 60);
+            } else {
+                // Typwriter sequence complete -> Fire Layer transition
+                setTimeout(transitionToDashboard, 1200);
+            }
+        }
+
+        function transitionToDashboard() {
+            const intro = document.getElementById('intro-layer');
+            const mainContent = document.getElementById('dashboard-container');
+
+            // Fade out and translate Layer 1 away smoothly
+            intro.style.opacity = '0';
+            intro.style.transform = 'scale(1.04)';
+
+            // Activate and pull forward Layer 2
+            mainContent.style.opacity = '1';
+            mainContent.style.transform = 'scale(1)';
+            mainContent.style.pointerEvents = 'auto';
+
+            // Garbage collect layer 1 DOM visibility
+            setTimeout(() => { intro.style.display = 'none'; }, 800);
+        }
+
+        // Initialize execution on complete file read
+        window.addEventListener('DOMContentLoaded', playTypewriter);
+
+        // --- 2. TERMINAL SIMULATION ENGINE ---
+        const buildSequence = [
+            { text: "$ initializing deployment sequence...", type: "muted" },
+            { text: "$ git checkout -b production-week-2", type: "muted" },
+            { text: "$ targeting endpoint: vercel/cloud-edge-nodes", type: "active" },
+            { text: "📦 bundling assets & compiling index.html...", type: "muted" },
+            { text: "🔒 validating TLS/SSL handshake tokens...", type: "muted" },
+            { text: "🚀 synchronizing variables for Ashelycole & Martha...", type: "active" },
+            { text: "✨ DEPLOYMENT COMPLETE. ENVIRONMENT ONLINE.", type: "success" }
+        ];
+
+        function triggerOrchestration() {
+            const screen = document.getElementById('console-output');
+            const btn = document.getElementById('master-btn');
+            
+            screen.innerHTML = '';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.6';
+            btn.innerText = "Syncing Pipeline Layers...";
+
+            let timelineOffset = 0;
+
+            buildSequence.forEach((step, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('p');
+                    if (step.type === 'muted') p.className = 'line-muted';
+                    if (step.type === 'active') p.className = 'line-active';
+                    if (step.type === 'success') p.className = 'line-success';
+                    
+                    p.innerText = step.text;
+                    screen.appendChild(p);
+                    screen.scrollTop = screen.scrollHeight;
+
+                    if (index === buildSequence.length - 1) {
+                        setTimeout(() => {
+                            btn.style.pointerEvents = 'auto';
+                            btn.style.opacity = '1';
+                            btn.style.background = 'var(--neon-green)';
+                            btn.style.boxShadow = '0 0 30px rgba(0, 255, 135, 0.4)';
+                            btn.innerText = "EXPLORE LIVE STACK";
+                            btn.onclick = () => window.open('https://ashelycole.vercel.app', '_blank');
+                        }, 500);
+                    }
+                }, timelineOffset);
+                timelineOffset += Math.floor(Math.random() * 500) + 250;
+            });
+        }
+    </script>
+</body>
+</html>
